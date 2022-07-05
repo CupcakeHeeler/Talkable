@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<head>
+    <title>Talkable</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css" />
+    <link rel="icon" type="image/png" href="https://th.bing.com/th/id/R.5229f3f5dad0639780487f1e4e0f6cda?rik=N1%2f1%2bl1AL4vezQ&riu=http%3a%2f%2fclipart-library.com%2fimages_k%2fmicrophone-clipart-transparent-background%2fmicrophone-clipart-transparent-background-20.png&ehk=vaw7KPeTyFOgpIgymK37DMAp0IEfWzy4tPhSn6yDk2g%3d&risl=&pid=ImgRaw&r=0"/>
+</head>
+<body>
+    <div class="center">
+        <form>
+            <div class="main">
+                <h1>Talkable</h1>
+                <br>
+                <label for="dropdown">Speaker: </label>
+                <select class="dropdown" name="dropdown" id="dropdown">
+                    <option value="bluey">Bluey</option>
+                    <option value="bingo">Bingo</option>
+                    <option value="chili">Chili</option>
+                    <option value="bandit">Bandit</option>
+                    <option value="socks">Socks</option>
+                    <option value="muffin">Muffin</option>
+                    <option value="stripe">Uncle Stripe</option>
+                    <option value="trixie">Aunt Trixie</option>
+                    <option value="brandy">Aunt Brandy</option>
+                    <option value="rad">Uncle Radley</option>
+                    <option value="frisky">Frisky</option>
+                </select>
+                <br>
+                <p>Enter ONE sentence at a time please!</p>
+                <textarea class="submissionfield" size="40" type="text" id="text" name="text" placeholder="Type some cool text here!" required></textarea><br>
+                <h6>Punctuation that depicts tone of voice is taken into account of.</h6>
+                <input class="button" type="submit" value="Generate" onclick="submit()" />
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        function submit() {
+            fetch()
+        }
+    </script>
+</body> 

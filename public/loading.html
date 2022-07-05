@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<head>
+    <title>One second</title>
+    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css" />
+    <link rel="icon" type="image/png" href="https://th.bing.com/th/id/R.5229f3f5dad0639780487f1e4e0f6cda?rik=N1%2f1%2bl1AL4vezQ&riu=http%3a%2f%2fclipart-library.com%2fimages_k%2fmicrophone-clipart-transparent-background%2fmicrophone-clipart-transparent-background-20.png&ehk=vaw7KPeTyFOgpIgymK37DMAp0IEfWzy4tPhSn6yDk2g%3d&risl=&pid=ImgRaw&r=0"/>
+</head>
+<body>
+    <div class="center">
+      <div class="main">
+        <h1>Generating Audio</h1>
+        <br><br><br><br><br><br><br><br><br><br><br><br>
+        <p style="text-align: center;">Feel free to sit back and relax while we generate your beautiful audio!</p>
+          <div class="wrapper">
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="circle"></div>
+              <div class="shadow"></div>
+              <div class="shadow"></div>
+              <div class="shadow"></div>
+          </div>
+      </div>
+    </div>
+    
+    <script>
+
+        window.onload = () => { 
+            const fragment = new URLSearchParams(window.location.hash.slice(1));
+		    let [dropdown, text] = [fragment.get('dropdown'), fragment.get('text')];
+            console.log(text)
+            if (text != null) {
+                document.getElementById("loading").style.display = 'block';
+            }
+        }
+
+        function submit() {
+            fetch()
+        }
+    </script>
+</body>
