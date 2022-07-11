@@ -101,7 +101,6 @@ def main():
             font = open("public/font.ttf", 'rb').read()
             fav = open("public/fav.png", 'rb').read()
             css = open("public/style.css", 'r').read()
-            finished = open("public/finished.html", 'r').read()
 
             #for i in range(20): html = html.replace('  ','')
             #html = html.replace('\n','')
