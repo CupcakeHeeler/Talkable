@@ -1,50 +1,79 @@
-<!DOCTYPE html>
-<head>
-    <title>Talkable</title>
-    <link rel="stylesheet" type="text/css" href="http://localhost:8000/style.css" />
-    <link rel="icon" type="image/png" href="https://th.bing.com/th/id/R.5229f3f5dad0639780487f1e4e0f6cda?rik=N1%2f1%2bl1AL4vezQ&riu=http%3a%2f%2fclipart-library.com%2fimages_k%2fmicrophone-clipart-transparent-background%2fmicrophone-clipart-transparent-background-20.png&ehk=vaw7KPeTyFOgpIgymK37DMAp0IEfWzy4tPhSn6yDk2g%3d&risl=&pid=ImgRaw&r=0"/>
-</head>
-<body>
-    <div class="center">
+<div class="center" id="main">
+    <div class="main">
         <form>
-            <div class="main">
-                <h1>Talkable</h1>
-                <br>
-                <label for="dropdown">Speaker: </label>
-                <select class="dropdown" name="dropdown" id="dropdown">
-                    <option value="bandit">Bandit</option>
-                    <option value="bingo">Bingo</option>
-                    <option value="bluey" selected>Bluey</option>
-                    <option value="brandy">Brandy</option>
-                    <option value="calypso">Calypso</option>
-                    <option value="chili">Chili</option>
-                    <option value="chloe">Chloe</option>
-                    <option value="frisky">Frisky</option>
-                    <option value="honey">Honey</option>
-                    <option value="jack">Jack</option>
-                    <option value="jasper">Jasper</option>
-                    <option value="judo">Judo</option>
-                    <option value="lila">Lila</option>
-                    <option value="mackenzie">Mackenzie</option>
-                    <option value="muffin">Muffin</option>
-                    <option value="socks">Socks</option>
-                    <option value="stripe">Stripe</option>
-                    <option value="trixie">Trixie</option>
-                    <option value="rad">Radley</option>
-                    <option value="rusty">Rusty</option>
-                </select>
-                <br>
-                <p>Enter ONE sentence at a time please!</p>
-                <textarea class="submissionfield" size="40" type="text" id="text" name="text" placeholder="Type some cool text here!" required></textarea><br>
-                <h6>Punctuation that depicts tone of voice is taken into account of.</h6>
-                <input class="button" type="submit" value="Generate" onclick="submit()" />
-            </div>
+            <h1>Talkable</h1>
+            <br>
+            <label for="dropdown">Speaker: </label>
+            <select id="dropdown" class="dropdown" name="dropdown" id="dropdown">
+                <option value="bandit">Bandit</option>
+                <option value="bingo">Bingo</option>
+                <option value="bluey" selected>Bluey</option>
+                <option value="brandy">Brandy</option>
+                <option value="calypso">Calypso</option>
+                <option value="chili">Chili</option>
+                <option value="chloe">Chloe</option>
+                <option value="frisky">Frisky</option>
+                <option value="honey">Honey</option>
+                <option value="jack">Jack</option>
+                <option value="jasper">Jasper</option>
+                <option value="judo">Judo</option>
+                <option value="lila">Lila</option>
+                <option value="mackenzie">Mackenzie</option>
+                <option value="muffin">Muffin</option>
+                <option value="socks">Socks</option>
+                <option value="stripe">Stripe</option>
+                <option value="trixie">Trixie</option>
+                <option value="rad">Radley</option>
+                <option value="rusty">Rusty</option>
+            </select>
+            <br>
+            <p>Now Enter Your TTS Message</p>
+            <textarea id="text" class="submissionfield" size="40" type="text" id="text" name="text" placeholder="Type some cool text here!" required></textarea><br>
+            <h6>Punctuation that depicts tone of voice is taken into account of.</h6>
         </form>
+        <noscript><p>You're gonna need JavaScript enabled for this to work!</p></noscript>
+        <input type="submit" value="Lets do this ->" class="button" onclick="submit();"/>
     </div>
-    
-    <script>
-        function submit() {
-            fetch()
-        }
-    </script>
-</body> 
+</div>
+<div class="loading" id="loading" style="display:none;">
+    <div class="center">
+        <div class="main">
+          <h1>Generating Audio</h1>
+          <br><br><br><br><br><br><br><br><br><br><br><br>
+          <p style="text-align: center;">Feel free to sit back and relax while we generate your beautiful audio!</p>
+            <div class="wrapper">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="shadow"></div>
+                <div class="shadow"></div>
+                <div class="shadow"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="finished" style="display:none;">
+    <div class="center">
+        <div class="main">
+            <h1>All done!</h1>
+            <p>Give it a listen and see how we did!</p>
+            <a href="/audio" download="MyAudio.wav"><button class="button">Manual Download</button></a>
+            <div id="audio">
+                
+            </div>
+            <p>Or create some new audio!</p>
+            <button onclick="refresh()" class="button">Create some more audio!</button>
+            <h6>Not what you expected? Contribute to the project at <a href="https://github.com/CupcakeHeeler/Talkable">our repository.</a></h6>
+        </div>
+    </div>
+</div>
+<div id="error" style="display:none;">
+    <div class="center">
+        <div class="main">
+            <h1>Whoops!</h1>
+            <p>We encoutered an error while generating your audio. Check the output log for more info.</p>
+            <button onclick="refresh()" class="button">Try Again?</button>
+            <h6>Contribute to the project at <a href="https://github.com/CupcakeHeeler/Talkable">our repository</a> to help prevent bugs like this from happening.</h6>
+        </div>
+    </div>
+</div>
