@@ -1,56 +1,48 @@
-import os, sys, argparse, webbrowser, socket
+import os, sys, argparse, webbrowser, socket, wave
 
-try:
-    from pydub import AudioSegment
-    from pydub.playback import play 
-    from moviepy.editor import concatenate_audioclips, AudioFileClip
-
-except ImportError as err:
-    print("Installing Dependecies\n")
-    os.system("pip install pydub")
-    os.system("pip install moviepy")
-    os.system("pip install tqdm")
-    
 os.system("cls")
-
-try:
-    from pydub import AudioSegment
-    from pydub.playback import play 
-    from moviepy.editor import concatenate_audioclips, AudioFileClip
-
-except ImportError as err:
-    print("Failed to install modules: pydub, moviepy, and tqdm.\nPlease install these modules yourself")
-    sys.exit()
 
 def generate_audio(text, speaker):
     files = text.split("+")
     i = 0
+
+    speechType = "neutral"
+
     for x in files:
-        if "!" in text:
-            speechType = "exclaim"
-        elif "?" in text:
-            speechType = "exclaim"
+        path = f"audioSamples/{speaker}/words/{speechType}/{x}.wav"
+        if os.path.isfile(path):
+            files[i] = path
         else:
-            speechType = "neutral"
-        
-        path = f"audioSamples/{speaker}/words/{speechType}/{x}.mp3"
-        files[i] = path
+            print(f"ERROR: {x} is not a valid word! D:")
+            return "Error"
         i+=1
+
     return files
 
-def concatenate_audio_moviepy(audio_clip_paths, output_path):
-    """Concatenates several audio files into one audio file using MoviePy
-    and save it to `output_path`. Note that extension (mp3, etc.) must be added to `output_path`"""
-    clips = [AudioFileClip(c) for c in audio_clip_paths]
-    final_clip = concatenate_audioclips(clips)
-    final_clip.write_audiofile(output_path, codec="mp3")
+def concatenate(audio_clip_paths, output_path):
+    i = 0
+    data = []
+    while i < len(audio_clip_paths):
+        audio = wave.open(audio_clip_paths[i], "rb")
+        data.append([audio.getparams(), audio.readframes(audio.getnframes())])
+        i += 1
+    
+    output = wave.open(output_path, "wb")
+    output.setparams(data[0][0])
+    for i in range(len(data)):
+        output.writeframes(data[i][1])
+    output.close()
+
     print("Audio succesfully generated")
 
 def createSpeech(text, speaker):
     print(f"Generating speech\nText: {text}\nSpeaker: {speaker}")
     if speaker =='bluey':
         audios = generate_audio(text, speaker)
-        concatenate_audio_moviepy(audios, "")
+        if audios == "Error":
+            return "Error"
+        else:
+            concatenate(audios, "public/temp/audio.wav")
     else:
         print("Speaker not supported")
 
@@ -74,18 +66,15 @@ def main():
 
 
     while 1:
-        query = {
-            "speaker": '',
-            "text": ''
-        }
-        # Wait for client connections
-        c, a = s.accept()
+        query = {"speaker":'',"text":''}
 
-        # Get the client request
+        c, a = s.accept()
         request = c.recv(1024).decode()
+
         path = ''
         i = 4
-        while request[i] != ' ' and request[i] != '?':
+        print(request)
+        while request[i] != ' ' and request[i] != '?' and i < len(request)-1:
              path = path + request[i]
              i += 1
         
@@ -100,36 +89,57 @@ def main():
                 i += 1
 
         i = 0
-
         text =''
         if query["text"] != '':
             speaker=query["speaker"].lower()
             text=query["text"].lower()
         
         if text == '':
-            # Send HTTP response
-            html = open("public/index.html", 'r').read()
+            html = open("public/main.html", 'r').read()
+            get = open("public/get.js", 'r').read()
+            index = open("public/index.html", 'r').read()
             font = open("public/font.ttf", 'rb').read()
+            fav = open("public/fav.png", 'rb').read()
             css = open("public/style.css", 'r').read()
-            loading = open("public/loading.html", 'r').read()
+            finished = open("public/finished.html", 'r').read()
+
+            #for i in range(20): html = html.replace('  ','')
+            #html = html.replace('\n','')
 
             if path == '/':
                 response = 'HTTP/1.0 200 OK\n\n'.encode() + html.encode()
+            elif path == "/index":
+                response = 'HTTP/1.0 200 OK\n\n'.encode() + index.encode()
+            elif path == "/get":
+                response = 'HTTP/1.0 200 OK\n\n'.encode() + get.encode()
+            elif path == "/fav":
+                response = 'HTTP/1.0 200 OK\n\n'.encode() + fav
             elif path == '/font':
                 response = 'HTTP/1.0 200 OK\n\n'.encode() + font
             elif path == '/style.css':
                 response = 'HTTP/1.0 200 OK\n\n'.encode() + css.encode()
+            elif path == '/audio':
+                response = 'HTTP/1.0 200 OK\n\n'.encode() + open("public/temp/audio.wav", 'rb').read()
+            
 
             c.sendall(response)
             c.close()
         else:
             print("New speech request detected")
-            html = open("public/loading.html", 'r').read()
-            response = 'HTTP/1.0 200 OK\n\n' + html
-            c.sendall(response.encode())
-            c.close()
+            
+            if os.path.isfile("public/temp/audio"):
+                os.remove("public/temp/audio")
+
             text = text.replace("%27","")
-            createSpeech(text.replace("%3f","?").replace("%21", "!").replace("%2c", "."), speaker)
+            if createSpeech(text.replace("%20","+"), speaker) == "Error":
+                print("Failed to generate audio")
+                response = 'HTTP/1.0 400 BAD REQUEST'
+                c.sendall(response.encode())
+                c.close()
+            else:
+                response = 'HTTP/1.0 200 OK\n\n'
+                c.sendall(response.encode())
+                c.close()
             
 
 if __name__ == '__main__':
