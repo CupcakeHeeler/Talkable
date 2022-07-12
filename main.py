@@ -2,19 +2,49 @@ import os, sys, argparse, webbrowser, socket, wave
 
 os.system("cls")
 
+validSpeakers = ["bluey", "brandy", "bingo"]
+
 def generate_audio(text, speaker):
     files = text.split("+")
     i = 0
-
     speechType = "neutral"
 
     for x in files:
-        path = f"audioSamples/{speaker}/words/{speechType}/{x}.wav"
+        if x.endswith("!"):
+            speechtype="exclaim"
+        elif x.endswith("?"):
+            speechtype="question"
+        speechType = "neutral"
+
+        word = x.replace("!", "").replace("?", "")
+
+        path = f"audioSamples/{speaker}/words/{speechType}/{word}.wav"
         if os.path.isfile(path):
             files[i] = path
+        elif os.path.isfile(f"audioSamples/{speaker}/words/neutral/{word}.wav"):
+            files[i] =      f"audioSamples/{speaker}/words/neutral/{word}.wav"
+        elif os.path.isfile(f"audioSamples/{speaker}/words/question/{word}.wav"):
+            files[i] =      f"audioSamples/{speaker}/words/question/{word}.wav"
+        elif os.path.isfile(f"audioSamples/{speaker}/words/exclaim/{word}.wav"):
+            files[i] =      f"audioSamples/{speaker}/words/exclaim/{word}.wav"
         else:
-            print(f"ERROR: {x} is not a valid word! D:")
-            return "Error"
+            if word.endswith("s"):
+                word = word.replace("s","")
+                path = f"audioSamples/{speaker}/words/{speechType}/{word}.wav"
+                if os.path.isfile(path):
+                    files[i] = path
+                elif os.path.isfile(f"audioSamples/{speaker}/words/neutral/{word}.wav"):
+                    files[i] =      f"audioSamples/{speaker}/words/neutral/{word}.wav"
+                elif os.path.isfile(f"audioSamples/{speaker}/words/question/{word}.wav"):
+                    files[i] =      f"audioSamples/{speaker}/words/question/{word}.wav"
+                elif os.path.isfile(f"audioSamples/{speaker}/words/exclaim/{word}.wav"):
+                    files[i] =      f"audioSamples/{speaker}/words/exclaim/{word}.wav"
+                else:
+                    print(f"ERROR: Couldn't find plural for {x}! D:")
+                    return "Error"
+            else:
+                print(f"ERROR: {x} is not a valid word! (No plurals found)")
+                return "Error"
         i+=1
 
     return files
@@ -37,7 +67,7 @@ def concatenate(audio_clip_paths, output_path):
 
 def createSpeech(text, speaker):
     print(f"Generating speech\nText: {text}\nSpeaker: {speaker}")
-    if speaker =='bluey':
+    if speaker in validSpeakers:
         audios = generate_audio(text, speaker)
         if audios == "Error":
             return "Error"
@@ -45,6 +75,7 @@ def createSpeech(text, speaker):
             concatenate(audios, "public/temp/audio.wav")
     else:
         print("Speaker not supported")
+        return "Error"
 
 def main():
 
@@ -66,79 +97,85 @@ def main():
 
 
     while 1:
-        query = {"speaker":'',"text":''}
+        try:
+            query = {"speaker":'',"text":''}
 
-        c, a = s.accept()
-        request = c.recv(1024).decode()
+            c, a = s.accept()
+            request = c.recv(1024).decode()
 
-        path = ''
-        i = 4
-        print(request)
-        while request[i] != ' ' and request[i] != '?' and i < len(request)-1:
-             path = path + request[i]
-             i += 1
-        
-        if request[i] == '?':
-            i += 10
-            while request[i] != '&':
-                query["speaker"] = query["speaker"] + request[i]
-                i += 1
-            i += 6
-            while request[i] != ' ':
-                query["text"] = query["text"] + request[i]
-                i += 1
+            path = ''
+            i = 4
+            print(request)
+            while request[i] != ' ' and request[i] != '?' and i < len(request)-1:
+                 path = path + request[i]
+                 i += 1
 
-        i = 0
-        text =''
-        if query["text"] != '':
-            speaker=query["speaker"].lower()
-            text=query["text"].lower()
-        
-        if text == '':
-            html = open("public/main.html", 'r').read()
-            get = open("public/get.js", 'r').read()
-            index = open("public/index.html", 'r').read()
-            font = open("public/font.ttf", 'rb').read()
-            fav = open("public/fav.png", 'rb').read()
-            css = open("public/style.css", 'r').read()
+            if request[i] == '?':
+                i += 10
+                while request[i] != '&':
+                    query["speaker"] = query["speaker"] + request[i]
+                    i += 1
+                i += 6
+                while request[i] != ' ':
+                    query["text"] = query["text"] + request[i]
+                    i += 1
 
-            #for i in range(20): html = html.replace('  ','')
-            #html = html.replace('\n','')
+            i = 0
+            text =''
+            if query["text"] != '':
+                speaker=query["speaker"].lower()
+                text=query["text"].lower()
 
-            if path == '/':
-                response = 'HTTP/1.0 200 OK\n\n'.encode() + html.encode()
-            elif path == "/index":
-                response = 'HTTP/1.0 200 OK\n\n'.encode() + index.encode()
-            elif path == "/get":
-                response = 'HTTP/1.0 200 OK\n\n'.encode() + get.encode()
-            elif path == "/fav":
-                response = 'HTTP/1.0 200 OK\n\n'.encode() + fav
-            elif path == '/font':
-                response = 'HTTP/1.0 200 OK\n\n'.encode() + font
-            elif path == '/style.css':
-                response = 'HTTP/1.0 200 OK\n\n'.encode() + css.encode()
-            elif path == '/audio':
-                response = 'HTTP/1.0 200 OK\n\n'.encode() + open("public/temp/audio.wav", 'rb').read()
-            
+            if text == '':
+                html = open("public/main.html", 'r').read()
+                get = open("public/get.js", 'r').read()
+                index = open("public/index.html", 'r').read()
+                font = open("public/font.ttf", 'rb').read()
+                fav = open("public/fav.png", 'rb').read()
+                css = open("public/style.css", 'r').read()
 
-            c.sendall(response)
-            c.close()
-        else:
-            print("New speech request detected")
-            
-            if os.path.isfile("public/temp/audio"):
-                os.remove("public/temp/audio")
+                #for i in range(20): html = html.replace('  ','')
+                #html = html.replace('\n','')
 
-            text = text.replace("%27","")
-            if createSpeech(text.replace("%20","+"), speaker) == "Error":
-                print("Failed to generate audio")
-                response = 'HTTP/1.0 400 BAD REQUEST'
-                c.sendall(response.encode())
+                if path == '/':
+                    response = 'HTTP/1.0 200 OK\n\n'.encode() + html.encode()
+                elif path == "/index":
+                    response = 'HTTP/1.0 200 OK\n\n'.encode() + index.encode()
+                elif path == "/get":
+                    response = 'HTTP/1.0 200 OK\n\n'.encode() + get.encode()
+                elif path == "/fav":
+                    response = 'HTTP/1.0 200 OK\n\n'.encode() + fav
+                elif path == '/font':
+                    response = 'HTTP/1.0 200 OK\n\n'.encode() + font
+                elif path == '/style.css':
+                    response = 'HTTP/1.0 200 OK\n\n'.encode() + css.encode()
+                elif path == '/audio':
+                    response = 'HTTP/1.0 200 OK\n\n'.encode() + open("public/temp/audio.wav", 'rb').read()
+
+
+                c.sendall(response)
                 c.close()
             else:
-                response = 'HTTP/1.0 200 OK\n\n'
-                c.sendall(response.encode())
-                c.close()
+                print("New speech request detected")
+
+                if os.path.isfile("public/temp/audio"):
+                    os.remove("public/temp/audio")
+
+                text = text.replace("%27","").replace(".", ",")
+
+                text = text.replace("know", "no").replace("write", "right").replace("theyre","there").replace("their", "there").replace("theyve", "they").replace("ok","okay").replace("eye","i")
+
+                if createSpeech(text.replace("%20","+").replace(",", "+,"), speaker) == "Error":
+                    print("Failed to generate audio")
+                    response = 'HTTP/1.0 400 BAD REQUEST'
+                    c.sendall(response.encode())
+                    c.close()
+                else:
+                    response = 'HTTP/1.0 200 OK\n\n'
+                    c.sendall(response.encode())
+                    c.close()
+        except:
+            print("Someone sent a funny request...")
             
 
 if __name__ == '__main__':
